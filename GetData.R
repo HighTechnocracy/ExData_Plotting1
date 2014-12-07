@@ -1,18 +1,17 @@
-        getData <- function(x) {
-        setwd("~/Desktop/ExData_Plotting1")
-        source("makeDT.R")
-        
-        fileName <- "household_power_consumption.txt"
-        pData <- read.table(fileName, header=TRUE, sep=";", na.strings="?")
-        data1 <- pData[,1]=="2/1/2007"
-        data2 <- pData[,1]=="2/2/2007"
-        day1 <- pData[data1,]
-        day2 <- pData[data2,]
-        newData <- rbind(day1, day2)
-        date <- newData$Date
-        date <- as.character(newData$Date)
-        time <- as.character(newData$Time)
-        DT <- makeDT(date, time)
-        x <- cbind(DT, newData[,3:9])
-        x
+## Sets the working directory, reads in the raw data, selects for the 
+## appropriate dates and creates the data object "pData".
+
+setwd("~/Desktop/ExData_Plotting1")
+power <- read.table("~/Desktop/household_power_consumption.txt", head = TRUE, 
+                    sep = ";", na.strings = "?", stringsAsFactors=FALSE)
+power_base <- transform(power, Date = as.Date(Date, format = "%d/%m/%Y"))
+power_base <- power_base[power_base$Date >= "2007-02-01" & 
+                                 power_base$Date <= "2007-02-02", ]
+
+datetime <- character()
+for (i in 1:nrow(power_base)) {
+        next_item <- paste(power_base$Date[i], power_base$Time[i])
+        datetime <- rbind(datetime, next_item)
 }
+datetime <- strptime(datetime, format="%Y-%m-%d %H:%M:%S")
+pData <- cbind(datetime, power_base[3:9])
